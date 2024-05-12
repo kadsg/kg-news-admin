@@ -88,7 +88,7 @@ export const constantRoutes = [
       path: 'user',
       name: 'User',
       component: () => import('@/views/management/user/index'),
-      meta: { title: '用户管理', icon: 'form' }
+      meta: { title: '用户管理', icon: 'el-icon-s-custom' }
     }]
   },
 
@@ -100,7 +100,7 @@ export const constantRoutes = [
       path: 'news',
       name: 'News',
       component: () => import('@/views/news/index'),
-      meta: { title: '新闻列表', icon: 'form' }
+      meta: { title: '新闻列表', icon: 'el-icon-news' }
     }]
   },
 
@@ -112,7 +112,7 @@ export const constantRoutes = [
       path: 'account',
       name: 'Account',
       component: () => import('@/views/center/index'),
-      meta: { title: '个人中心', icon: 'form' }
+      meta: { title: '个人中心', icon: 'user' }
     }]
   },
 
