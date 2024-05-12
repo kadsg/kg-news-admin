@@ -1,15 +1,5 @@
 <template>
   <div class="app-container">
-    <div class="filter-container">
-      <el-input v-model="listQuery.tagName" placeholder="标签名" style="width: 200px; margin-right: 20px;" class="filter-item" @keyup.enter.native="handleFilter" />
-      <el-input v-model="listQuery.tagId" placeholder="标签ID" style="width: 200px;  margin-right: 20px;" class="filter-item" @keyup.enter.native="handleFilter" />
-      <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
-        搜索
-      </el-button>
-      <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleCreate">
-        添加
-      </el-button>
-    </div>
 
     <div class="table-container">
       <br>
@@ -25,15 +15,21 @@
       style="width: 100%;"
       @sort-change="sortChange"
     >
-      <el-table-column label="ID" prop="tagId" align="center" width="80">
+      <el-table-column label="ID" prop="roleId" align="center" width="80">
         <template slot-scope="{row}">
-          <span>{{ row.tagId }}</span>
+          <span>{{ row.roleId }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column label="标签名" prop="tagName" align="center" width="130">
+      <el-table-column label="标签名" prop="roleName" align="center" width="130">
         <template slot-scope="{row}">
-          <span>{{ row.tagName }}</span>
+          <span>{{ row.roleName }}</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="角色编码" prop="code" align="center" width="130">
+        <template slot-scope="{row}">
+          <span>{{ row.code }}</span>
         </template>
       </el-table-column>
 
@@ -55,25 +51,10 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="创建人" prop="createTime" align="center" width="170">
-        <template slot-scope="{row}">
-          <span>{{ userInfoMap[row.createUserId] }}</span>
-        </template>
-      </el-table-column>
-
-      <el-table-column label="操作人" prop="createTime" align="center" width="170">
-        <template slot-scope="{row}">
-          <span>{{ userInfoMap[row.updateUserId] }}</span>
-        </template>
-      </el-table-column>
-
       <el-table-column label="操作" align="center" width="210" class-name="small-padding fixed-width">
-        <template slot-scope="{row,$index}">
+        <template slot-scope="{ row }">
           <el-button type="primary" size="mini" @click="handleUpdate(row)">
             编辑
-          </el-button>
-          <el-button v-if="row.status!='deleted'" size="mini" type="danger" @click="handleDelete(row,$index)">
-            删除
           </el-button>
         </template>
       </el-table-column>
@@ -84,8 +65,11 @@
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">
-        <el-form-item label="标签名" prop="name">
-          <el-input v-model="temp.name" />
+        <el-form-item label="角色名" prop="roleName">
+          <el-input v-model="temp.roleName" />
+        </el-form-item>
+        <el-form-item label="角色编码" prop="code">
+          <el-input v-model="temp.code" />
         </el-form-item>
         <el-form-item label="描述">
           <el-input v-model="temp.description" :autosize="{ minRows: 1, maxRows: 2}" type="textarea" />
@@ -115,7 +99,7 @@
 
 <script>
 
-import { queryNewsTag, addNewsTag, updateNewsTag } from '@/api/tag'
+import { getList } from '@/api/roles'
 import { getInfo } from '@/api/user'
 import waves from '@/directive/waves' // waves directive
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
@@ -142,8 +126,8 @@ export default {
       total: 0,
       listLoading: true,
       listQuery: {
-        tagId: '',
-        tagName: '',
+        roleId: '',
+        roleName: '',
         pageNum: 1,
         pageSize: 10
       },
@@ -151,8 +135,9 @@ export default {
       statusOptions: ['published', 'draft', 'deleted'],
       showReviewer: false,
       temp: {
-        description: '',
-        name: ''
+        roleName: '',
+        code: '',
+        description: ''
       },
       dialogFormVisible: false,
       dialogStatus: '',
@@ -167,15 +152,8 @@ export default {
       }
     }
   },
-  async created() {
-    await this.getList()
-    const rows = this.list
-    for (const row of rows) {
-      let userInfo = await this.getUserInfo(row.createUserId)
-      this.$set(this.userInfoMap, row.createUserId, row.updateUserId, userInfo)
-      userInfo = await this.getUserInfo(row.updateUserId)
-      this.$set(this.userInfoMap, row.updateUserId, userInfo)
-    }
+  created() {
+    this.getList()
   },
   methods: {
     // 获取操作用户信息
@@ -186,7 +164,7 @@ export default {
     // 获取标签列表
     async getList() {
       this.listLoading = true
-      const response = await queryNewsTag(this.listQuery)
+      const response = await getList(this.listQuery)
       this.list = response.data.list
       this.total = response.data.total
 
@@ -214,7 +192,8 @@ export default {
     },
     resetTemp() {
       this.temp = {
-        name: '',
+        roleName: '',
+        code: '',
         description: ''
       }
     },
@@ -226,23 +205,6 @@ export default {
         this.$refs['dataForm'].clearValidate()
       })
     },
-    createData() {
-      this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          addNewsTag(this.temp).then(() => {
-            this.list.unshift(this.temp)
-            this.dialogFormVisible = false
-            this.$notify({
-              title: '成功',
-              message: '成功添加标签',
-              type: 'success',
-              duration: 2000
-            })
-            this.getList()
-          })
-        }
-      })
-    },
     handleUpdate(row) {
       this.temp = Object.assign({}, row) // copy obj
       this.temp.timestamp = new Date(this.temp.timestamp)
@@ -251,33 +213,6 @@ export default {
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate()
       })
-    },
-    updateData() {
-      this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          const tempData = Object.assign({}, this.temp)
-          updateNewsTag(tempData).then(() => {
-            const index = this.list.findIndex(v => v.id === this.temp.id)
-            this.list.splice(index, 1, this.temp)
-            this.dialogFormVisible = false
-            this.$notify({
-              title: '成功',
-              message: '更新成功',
-              type: 'success',
-              duration: 2000
-            })
-          })
-        }
-      })
-    },
-    handleDelete(row, index) {
-      this.$notify({
-        title: 'Success',
-        message: 'Delete Successfully',
-        type: 'success',
-        duration: 2000
-      })
-      this.list.splice(index, 1)
     }
   }
 }
