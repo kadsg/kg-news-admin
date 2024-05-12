@@ -105,6 +105,18 @@ export const constantRoutes = [
   },
 
   {
+    path: '/account',
+    component: Layout,
+    redirect: '/account',
+    children: [{
+      path: 'account',
+      name: 'Account',
+      component: () => import('@/views/center/index'),
+      meta: { title: '个人中心', icon: 'form' }
+    }]
+  },
+
+  {
     path: '/detail/:id',
     component: Layout,
     redirect: '/detail/:id',

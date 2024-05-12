@@ -1,10 +1,14 @@
 import { login, logout, getInfo } from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import { resetRouter } from '@/router'
+import Cookies from 'js-cookie'
 
 const getDefaultState = () => {
   return {
+    // eslint-disable-next-line no-undef
+    id: Cookies.get('vue_admin_template_id') || '',
     token: getToken(),
+    username: '',
     nickname: '',
     roleId: '',
     roleName: '',
@@ -21,6 +25,9 @@ const state = getDefaultState()
 const mutations = {
   RESET_STATE: (state) => {
     Object.assign(state, getDefaultState())
+  },
+  SET_ID: (state, id) => {
+    state.id = id
   },
   SET_TOKEN: (state, token) => {
     state.token = token
@@ -59,8 +66,11 @@ const actions = {
     return new Promise((resolve, reject) => {
       login({ username: username.trim(), password: password }).then(response => {
         const { data } = response
+        commit('SET_ID', data.id)
         commit('SET_TOKEN', data.token)
         setToken(data.token)
+        // eslint-disable-next-line no-undef
+        Cookies.set('vue_admin_template_id', data.id) // 保存id到Cookies
         resolve()
       }).catch(error => {
         reject(error)
@@ -69,20 +79,21 @@ const actions = {
   },
 
   // get user info
-  getInfo({ commit }) {
+  getInfo({ commit, state }) {
     return new Promise((resolve, reject) => {
-      getInfo(0).then(response => {
+      console.log('state.token', state.token)
+      getInfo(state.id).then(response => {
         const { data } = response
-
         if (!data) {
           return reject('Verification failed, please Login again.')
         }
 
-        const { nickname,
+        const { userId, nickname,
           roleId, roleName,
           email, phone, createUser,
           createTime, updateTime } = data
 
+        commit('SET_ID', userId)
         commit('SET_NICKNAME', nickname)
         commit('SET_AVATAR', roleId)
         commit('SET_ROLE_NAME', roleName)
@@ -104,6 +115,8 @@ const actions = {
     return new Promise((resolve, reject) => {
       logout(state.token).then(() => {
         removeToken() // must remove  token  first
+        // eslint-disable-next-line no-undef
+        Cookies.remove('vue_admin_template_id')
         resetRouter()
         commit('RESET_STATE')
         resolve()
