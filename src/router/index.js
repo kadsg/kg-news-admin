@@ -5,6 +5,7 @@ Vue.use(Router)
 
 /* Layout */
 import Layout from '@/layout'
+import Detail from '@/views/news/summary/index.vue'
 
 /**
  * Note: sub-menu only appear when route children.length >= 1
@@ -56,28 +57,63 @@ export const constantRoutes = [
   },
 
   {
-    path: '/management',
+    path: '/tag',
     component: Layout,
-    name: 'Management',
-    meta: { title: '系统管理', icon: 'el-icon-menu' },
+    redirect: '/tag',
+    children: [{
+      path: 'tag',
+      name: 'Tag',
+      component: () => import('@/views/management/tag/index'),
+      meta: { title: '新闻标签', icon: 'el-icon-notebook-1' }
+    }]
+  },
+
+  {
+    path: '/role',
+    component: Layout,
+    redirect: '/role',
+    children: [{
+      path: 'role',
+      name: 'Role',
+      component: () => import('@/views/management/role/index'),
+      meta: { title: '系统角色', icon: 'form' }
+    }]
+  },
+
+  {
+    path: '/user',
+    component: Layout,
+    redirect: '/user',
+    children: [{
+      path: 'user',
+      name: 'User',
+      component: () => import('@/views/management/user/index'),
+      meta: { title: '用户管理', icon: 'form' }
+    }]
+  },
+
+  {
+    path: '/news',
+    component: Layout,
+    redirect: '/news',
+    children: [{
+      path: 'news',
+      name: 'News',
+      component: () => import('@/views/news/index'),
+      meta: { title: '新闻列表', icon: 'form' }
+    }]
+  },
+
+  {
+    path: '/detail/:id',
+    component: Layout,
+    redirect: '/detail/:id',
     children: [
       {
-        path: 'tag',
-        name: 'Tag',
-        component: () => import('@/views/management/tag/index'),
-        meta: { title: '标签管理', icon: 'el-icon-notebook-1' }
-      },
-      {
-        path: 'role',
-        name: 'Role',
-        component: () => import('@/views/management/role/index'),
-        meta: { title: '角色管理', icon: 'form' }
-      },
-      {
-        path: 'user',
-        name: 'User',
-        component: () => import('@/views/management/user/index'),
-        meta: { title: '用户管理', icon: 'form' }
+        path: 'detail/:id',
+        name: 'Detail',
+        component: Detail,
+        hidden: true
       }
     ]
   },
@@ -88,7 +124,7 @@ export const constantRoutes = [
     children: [
       {
         path: 'https://panjiachen.github.io/vue-element-admin-site/#/',
-        meta: { title: 'External Link', icon: 'link' }
+        meta: { title: '外部链接', icon: 'link' }
       }
     ]
   },
