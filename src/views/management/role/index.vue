@@ -161,7 +161,7 @@ export default {
       const response = await getInfo(id)
       return response.data.username
     },
-    // 获取标签列表
+    // 获取角色列表
     async getList() {
       this.listLoading = true
       const response = await getList(this.listQuery)
