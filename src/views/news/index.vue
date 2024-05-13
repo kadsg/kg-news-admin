@@ -41,7 +41,7 @@
       </el-table-column>
       <el-table-column label="操作" align="center" width="210" class-name="small-padding fixed-width">
         <template slot-scope="{row}">
-          <el-button type="primary" size="mini" @click="jumpToDetail(row.tagId, row.tagName)">
+          <el-button type="primary" size="mini" @click="jumpToSummary(row.tagId, row.tagName)">
             查看文章
           </el-button>
         </template>
@@ -150,9 +150,9 @@ export default {
         this.listLoading = false
       }, 1.5 * 1000)
     },
-    jumpToDetail(tagId, tagName) {
+    jumpToSummary(tagId, tagName) {
       // 使用 this.$router.push() 方法跳转到 detail/index 页面，并将 tagId 作为参数传递过去
-      this.$router.push({ name: 'Detail', params: { id: tagId, tagName: tagName }})
+      this.$router.push({ name: 'Summary', params: { id: tagId, tagName: tagName }})
     },
     // 筛选
     handleFilter() {

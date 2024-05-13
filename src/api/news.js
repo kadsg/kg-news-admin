@@ -8,3 +8,12 @@ export function getList(data) {
     data
   })
 }
+
+// 获取新闻详情
+export function getDetail(newsId) {
+  return request({
+    url: '/news/detail',
+    method: 'get',
+    params: { newsId }
+  })
+}

@@ -69,10 +69,10 @@
 
       <el-table-column label="操作" align="center" width="210" class-name="small-padding fixed-width">
         <template slot-scope="{row}">
-          <el-button type="primary" size="mini" @click="jumpToDetail(row.tagId)">
+          <el-button type="primary" size="mini" @click="jumpToDetail(row.newsId)">
             查看文章
           </el-button>
-          <el-button type="danger" size="mini" @click="jumpToDetail(row.tagId)">
+          <el-button type="danger" size="mini">
             删除文章
           </el-button>
         </template>
@@ -90,7 +90,7 @@ import { getList } from '@/api/news'
 import Pagination from '@/components/Pagination/index.vue'
 
 export default {
-  name: 'Detail',
+  name: 'Summary',
   components: { Pagination },
   data() {
     return {
@@ -122,6 +122,10 @@ export default {
         this.total = response.data.total
         this.listLoading = false
       })
+    },
+    jumpToDetail(newsId) {
+      console.log(newsId)
+      this.$router.push({ name: 'Detail', params: { id: newsId }})
     }
   }
 }
