@@ -19,6 +19,7 @@
       </div>
     </el-card>
 
+    <!--  评论区整体  -->
     <el-drawer
       title="评论区"
       :visible.sync="drawer"
@@ -33,7 +34,7 @@
             v-model="textarea">
           </el-input>
           <div style="display: flex; justify-content: flex-end;">
-            <el-button style="margin-top: 30px " type="success" icon="el-icon-check" circle>发送</el-button>
+            <el-button style="margin-top: 30px " type="success" icon="el-icon-check" circle @click="sendComment(null, null, textarea)">发送</el-button>
           </div>
         </el-card>
         </div>
@@ -45,6 +46,7 @@
           :append-to-body="true"
           :before-close="handleClose"
           :visible.sync="innerDrawer">
+
           <el-card>
             <el-input
               type="textarea"
@@ -53,10 +55,11 @@
               v-model="textarea">
             </el-input>
             <div style="display: flex; justify-content: flex-end;">
-              <el-button style="margin-top: 30px " type="success" icon="el-icon-check" circle>发送</el-button>
+              <el-button style="margin-top: 30px " type="success" icon="el-icon-check" circle @click="sendComment(currentComment.fatherId, null, textarea)">发送</el-button>
             </div>
           </el-card>
 
+          <!--    子级评论     -->
           <div class="block" style="margin-top: 30px">
               <el-timeline v-for="comment in subCommentList">
                 <el-timeline-item  :timestamp="comment.createTime" placement="top">
@@ -84,7 +87,12 @@
               <span>
                 <el-button class="el-icon-arrow-up" type="text" size="mini">点赞 {{ comment.likeCount }}</el-button>
                 <el-button class="el-icon-arrow-down" type="text" size="mini">踩 {{ comment.unlikeCount }}</el-button>
-                <el-button class="el-icon-s-comment" type="text" size="mini" @click="openSubComment(comment.authorName, comment.children)">回复 {{ comment.children.length }}</el-button>
+                <el-button class="el-icon-s-comment" type="text" size="mini"
+                           @click="currentComment.fatherId=comment.commentId;
+                            currentComment.authorName=comment.authorName;
+                            currentComment.children=comment.children;
+                            currentComment.commentId=comment.commentId;
+                           openSubComment(currentComment.authorName, currentComment.children)">回复 {{ comment.children.length }}</el-button>
               </span>
             </el-card>
           </el-timeline-item>
@@ -97,7 +105,7 @@
 
 <script>
 import { getDetail } from '@/api/news'
-import { getNewsCommentList } from '@/api/comment'
+import { getNewsCommentList, saveComment } from '@/api/comment'
 
 export default {
   name: 'Detail',
@@ -118,7 +126,19 @@ export default {
       drawer: false,
       innerDrawer: false,
       direction: 'rtl',
-      textarea: ''
+      textarea: '',
+      sendCommentInfo: {
+        newsId: this.$route.params.id,
+        parentId: '',
+        replyId: '',
+        content: ''
+      },
+      currentComment: {
+        commentId: '',
+        fatherId: '',
+        authorName: '',
+        children: []
+      }
     }
   },
   created() {
@@ -130,16 +150,53 @@ export default {
         this.detail = response.data
       })
     },
+    // getCommentList() {
+    //   this.commentQuery.newsId = this.id
+    //   getNewsCommentList(this.commentQuery).then(response => {
+    //     this.commentList = response.data.list
+    //   })
+    // },
     getCommentList() {
-      this.commentQuery.newsId = this.id
-      getNewsCommentList(this.commentQuery).then(response => {
-        this.commentList = response.data.list
+      return new Promise((resolve, reject) => {
+        this.commentQuery.newsId = this.id
+        getNewsCommentList(this.commentQuery).then(response => {
+          this.commentList = response.data.list
+          resolve()
+        }).catch(error => {
+          reject(error)
+        })
       })
     },
     openSubComment(authorName, children) {
       this.authorName = authorName
       this.subCommentList = children
       this.innerDrawer = true
+    },
+    sendComment(parentId, replyId, content) {
+      this.sendCommentInfo.parentId = parentId
+      this.sendCommentInfo.replyId = replyId
+      this.sendCommentInfo.content = content
+
+      saveComment(this.sendCommentInfo).then(async() => {
+        // 发送成功后提示，刷新评论列表
+        this.$message({
+          message: '发送成功',
+          type: 'success'
+        })
+        console.log("旧列表：", this.commentList)
+        await this.getCommentList()
+        console.log("新列表：", this.commentList)
+        this.commentList.forEach(item => {
+          if (this.currentComment.commentId === item.commentId) {
+            this.currentComment.children = item.children
+          }
+        })
+        // 如果当前正在查看子评论，刷新子评论
+        if (this.innerDrawer) {
+          this.innerDrawer = false
+          this.openSubComment(this.currentComment.authorName, this.currentComment.children)
+        }
+      })
     },
     handleClose(done) {
       done()

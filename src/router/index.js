@@ -88,7 +88,7 @@ export const constantRoutes = [
     children: [{
       path: '/user',
       name: 'User',
-      component: () => import('@/views/management/user/index'),
+      component: () => import('@/views/management/user/index.vue'),
       meta: { title: '用户管理', icon: 'el-icon-s-custom' }
     }]
   },

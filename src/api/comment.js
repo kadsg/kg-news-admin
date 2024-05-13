@@ -8,3 +8,12 @@ export function getNewsCommentList(data) {
     data
   })
 }
+
+// 保存评论
+export function saveComment(data) {
+  return request({
+    url: '/comment/save',
+    method: 'post',
+    data
+  })
+}
