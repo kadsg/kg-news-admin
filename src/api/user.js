@@ -30,3 +30,12 @@ export function fetchList(data) {
     data
   })
 }
+
+// 更新用户信息
+export function updateInfo(data) {
+  return request({
+    url: '/user/update',
+    method: 'put',
+    data
+  })
+}
