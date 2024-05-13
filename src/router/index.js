@@ -5,7 +5,8 @@ Vue.use(Router)
 
 /* Layout */
 import Layout from '@/layout'
-import Detail from '@/views/news/summary/index.vue'
+import Summary from '@/views/news/summary/index.vue'
+import Detail from '@/views/news/detail/index.vue'
 
 /**
  * Note: sub-menu only appear when route children.length >= 1
@@ -114,6 +115,20 @@ export const constantRoutes = [
       component: () => import('@/views/center/index'),
       meta: { title: '个人中心', icon: 'user' }
     }]
+  },
+
+  {
+    path: '/summary/:id',
+    component: Layout,
+    redirect: '/summary/:id',
+    children: [
+      {
+        path: 'summary/:id',
+        name: 'Summary',
+        component: Summary,
+        hidden: true
+      }
+    ]
   },
 
   {
