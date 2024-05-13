@@ -106,6 +106,18 @@ export const constantRoutes = [
   },
 
   {
+    path: '/news/query',
+    component: Layout,
+    redirect: '/news/query',
+    children: [{
+      path: '/news/query',
+      name: 'NewsQuery',
+      component: () => import('@/views/news/query.vue'),
+      meta: { title: '新闻检索', icon: 'el-icon-search' }
+    }]
+  },
+
+  {
     path: '/account',
     component: Layout,
     redirect: '/account',
