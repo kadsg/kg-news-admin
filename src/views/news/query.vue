@@ -3,7 +3,7 @@
     <div class="filter-container">
       <el-input v-model="newsListQuery.newsId" placeholder="新闻编号" style="width: 200px; margin-right: 20px;" class="filter-item" @keyup.enter.native="handleFilter" />
       <el-input v-model="newsListQuery.title" placeholder="新闻标题" style="width: 200px; margin-right: 20px;" class="filter-item" @keyup.enter.native="handleFilter" />
-      <el-select v-model="newsListQuery.newsTagId" clearable  placeholder="所属标签" style="width: 200px; margin-right: 20px;">
+      <el-select v-model="newsListQuery.newsTagId" clearable  placeholder="所属标签（默认全部）" style="width: 200px; margin-right: 20px;">
         <el-option
           v-for="item in tagOptions"
           v-if="item.deleteFlag === false"
@@ -175,6 +175,11 @@ export default {
       getList(this.newsListQuery).then(response => {
         this.newsSummaryList = response.data.list
         this.total = response.data.total
+        // 消息提示
+        this.$message({
+          message: '查询成功',
+          type: 'success'
+        })
       })
     },
     // 筛选

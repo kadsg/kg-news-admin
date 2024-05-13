@@ -39,6 +39,13 @@
           <span>{{ row.description }}</span>
         </template>
       </el-table-column>
+
+      <el-table-column label="新闻数量" prop="description" align="center" width="130">
+        <template slot-scope="{row}">
+          <span>{{ row.count }}</span>
+        </template>
+      </el-table-column>
+
       <el-table-column label="操作" align="center" width="210" class-name="small-padding fixed-width">
         <template slot-scope="{row}">
           <el-button type="primary" size="mini" @click="jumpToSummary(row.tagId, row.tagName)">
