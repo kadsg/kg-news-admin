@@ -62,7 +62,7 @@ export const constantRoutes = [
     component: Layout,
     redirect: '/tag',
     children: [{
-      path: 'tag',
+      path: '/tag',
       name: 'Tag',
       component: () => import('@/views/management/tag/index'),
       meta: { title: '新闻标签', icon: 'el-icon-notebook-1' }
@@ -74,7 +74,7 @@ export const constantRoutes = [
     component: Layout,
     redirect: '/role',
     children: [{
-      path: 'role',
+      path: '/role',
       name: 'Role',
       component: () => import('@/views/management/role/index'),
       meta: { title: '系统角色', icon: 'form' }
@@ -86,7 +86,7 @@ export const constantRoutes = [
     component: Layout,
     redirect: '/user',
     children: [{
-      path: 'user',
+      path: '/user',
       name: 'User',
       component: () => import('@/views/management/user/index'),
       meta: { title: '用户管理', icon: 'el-icon-s-custom' }
@@ -98,7 +98,7 @@ export const constantRoutes = [
     component: Layout,
     redirect: '/news',
     children: [{
-      path: 'news',
+      path: '/news',
       name: 'News',
       component: () => import('@/views/news/index'),
       meta: { title: '新闻列表', icon: 'el-icon-news' }
@@ -110,7 +110,7 @@ export const constantRoutes = [
     component: Layout,
     redirect: '/account',
     children: [{
-      path: 'account',
+      path: '/account',
       name: 'Account',
       component: () => import('@/views/center/index'),
       meta: { title: '个人中心', icon: 'user' }
@@ -123,7 +123,7 @@ export const constantRoutes = [
     redirect: '/summary/:id',
     children: [
       {
-        path: 'summary/:id',
+        path: '/summary/:id',
         name: 'Summary',
         component: Summary,
         hidden: true
@@ -137,7 +137,7 @@ export const constantRoutes = [
     redirect: '/detail/:id',
     children: [
       {
-        path: 'detail/:id',
+        path: '/detail/:id',
         name: 'Detail',
         component: Detail,
         hidden: true
