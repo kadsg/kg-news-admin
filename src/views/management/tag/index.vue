@@ -245,7 +245,7 @@ export default {
     },
     handleUpdate(row) {
       this.temp = Object.assign({}, row) // copy obj
-      this.temp.timestamp = new Date(this.temp.timestamp)
+      this.temp.id = row.tagId
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
       this.$nextTick(() => {
@@ -264,8 +264,10 @@ export default {
               title: '成功',
               message: '更新成功',
               type: 'success',
-              duration: 2000
-            })
+              duration: 2000,
+            },
+              this.getList()
+            )
           })
         }
       })
