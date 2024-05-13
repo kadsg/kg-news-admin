@@ -17,3 +17,11 @@ export function saveComment(data) {
     data
   })
 }
+
+// 删除评论
+export function deleteComment(commentId) {
+  return request({
+    url: '/comment/' + commentId,
+    method: 'delete'
+  })
+}

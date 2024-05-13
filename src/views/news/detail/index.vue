@@ -69,6 +69,7 @@
                     <span>
                     <el-button class="el-icon-arrow-up" type="text" size="mini">点赞 {{ comment.likeCount }}</el-button>
                     <el-button class="el-icon-arrow-down" type="text" size="mini">踩 {{ comment.unlikeCount }}</el-button>
+                      <el-button type="danger" size="mini" icon="el-icon-delete" circle @click="deleteComment(comment.commentId)">删除</el-button>
                   </span>
                   </el-card>
                 </el-timeline-item>
@@ -93,6 +94,7 @@
                             currentComment.children=comment.children;
                             currentComment.commentId=comment.commentId;
                            openSubComment(currentComment.authorName, currentComment.children)">回复 {{ comment.children.length }}</el-button>
+                <el-button type="danger" size="mini" icon="el-icon-delete" circle @click="deleteComment(comment.commentId)">删除</el-button>
               </span>
             </el-card>
           </el-timeline-item>
@@ -105,7 +107,7 @@
 
 <script>
 import { getDetail } from '@/api/news'
-import { getNewsCommentList, saveComment } from '@/api/comment'
+import { getNewsCommentList, saveComment, deleteComment } from '@/api/comment'
 
 export default {
   name: 'Detail',
@@ -150,12 +152,6 @@ export default {
         this.detail = response.data
       })
     },
-    // getCommentList() {
-    //   this.commentQuery.newsId = this.id
-    //   getNewsCommentList(this.commentQuery).then(response => {
-    //     this.commentList = response.data.list
-    //   })
-    // },
     getCommentList() {
       return new Promise((resolve, reject) => {
         this.commentQuery.newsId = this.id
@@ -183,9 +179,7 @@ export default {
           message: '发送成功',
           type: 'success'
         })
-        console.log("旧列表：", this.commentList)
         await this.getCommentList()
-        console.log("新列表：", this.commentList)
         this.commentList.forEach(item => {
           if (this.currentComment.commentId === item.commentId) {
             this.currentComment.children = item.children
@@ -196,6 +190,37 @@ export default {
           this.innerDrawer = false
           this.openSubComment(this.currentComment.authorName, this.currentComment.children)
         }
+        this.textarea = ''
+      })
+    },
+    deleteComment(commentId) {
+      this.$confirm('此操作将永久删除该评论, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        deleteComment(commentId).then(async() => {
+          this.$message({
+            type: 'success',
+            message: '删除成功!'
+          })
+          await this.getCommentList()
+          this.commentList.forEach(item => {
+            if (this.currentComment.commentId === item.commentId) {
+              this.currentComment.children = item.children
+            }
+          })
+          // 如果当前正在查看子评论，刷新子评论
+          if (this.innerDrawer) {
+            this.innerDrawer = false
+            this.openSubComment(this.currentComment.authorName, this.currentComment.children)
+          }
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })
       })
     },
     handleClose(done) {
