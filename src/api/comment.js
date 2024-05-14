@@ -25,3 +25,27 @@ export function deleteComment(commentId) {
     method: 'delete'
   })
 }
+
+// 获取评论点赞状态
+export function getCommentLikeStatus(commentId) {
+  return request({
+    url: '/comment/like/status/' + commentId,
+    method: 'get'
+  })
+}
+
+// 点赞评论
+export function likeComment(commentId) {
+  return request({
+    url: '/comment/like/' + commentId,
+    method: 'put'
+  })
+}
+
+// 踩评论
+export function dislikeComment(commentId) {
+  return request({
+    url: '/comment/dislike/' + commentId,
+    method: 'put'
+  })
+}

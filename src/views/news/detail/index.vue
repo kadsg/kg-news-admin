@@ -21,6 +21,7 @@
 
     <!--  评论区整体  -->
     <el-drawer
+      v-if="commentLoading === false"
       title="评论区"
       :visible.sync="drawer"
       :with-header="false"
@@ -67,9 +68,11 @@
                     <h4>{{ comment.authorName }}</h4>
                     <p>{{ comment.content }}</p>
                     <span>
-                    <el-button class="el-icon-arrow-up" type="text" size="mini">点赞 {{ comment.likeCount }}</el-button>
-                    <el-button class="el-icon-arrow-down" type="text" size="mini">踩 {{ comment.unlikeCount }}</el-button>
-                      <el-button type="danger" size="mini" icon="el-icon-delete" circle @click="deleteComment(comment.commentId)">删除</el-button>
+                    <el-button v-if="comment.likeStatus===false" class="el-icon-arrow-up" type="text" size="mini" @click="handleLike(comment.commentId)">点赞 {{ comment.likeCount }}</el-button>
+                    <el-button v-if="comment.likeStatus===true" class="el-icon-arrow-up" type="text" size="mini" @click="handleLike(comment.commentId)">已点赞 {{ comment.likeCount }}</el-button>
+                    <el-button v-if="comment.dislikeStatus===false"  class="el-icon-arrow-down" type="text" size="mini" @click="handleDislike(comment.commentId)">踩 {{ comment.unlikeCount }}</el-button>
+                    <el-button v-if="comment.dislikeStatus===true"  class="el-icon-arrow-down" type="text" size="mini" @click="handleDislike(comment.commentId)">已踩 {{ comment.unlikeCount }}</el-button>
+                     <el-button type="danger" size="mini" icon="el-icon-delete" circle @click="deleteComment(comment.commentId)">删除</el-button>
                   </span>
                   </el-card>
                 </el-timeline-item>
@@ -86,9 +89,11 @@
               <h4>{{ comment.authorName }}</h4>
               <p>{{ comment.content }}</p>
               <span>
-                <el-button class="el-icon-arrow-up" type="text" size="mini">点赞 {{ comment.likeCount }}</el-button>
-                <el-button class="el-icon-arrow-down" type="text" size="mini">踩 {{ comment.unlikeCount }}</el-button>
-                <el-button class="el-icon-s-comment" type="text" size="mini"
+                <el-button v-if="comment.likeStatus===false" class="el-icon-arrow-up" type="text" size="mini" @click="handleLike(comment.commentId)">点赞 {{ comment.likeCount }}</el-button>
+                    <el-button v-if="comment.likeStatus===true" class="el-icon-arrow-up" type="text" size="mini" @click="handleLike(comment.commentId)">已点赞 {{ comment.likeCount }}</el-button>
+                    <el-button v-if="comment.dislikeStatus===false"  class="el-icon-arrow-down" type="text" size="mini" @click="handleDislike(comment.commentId)">踩 {{ comment.unlikeCount }}</el-button>
+                    <el-button v-if="comment.dislikeStatus===true"  class="el-icon-arrow-down" type="text" size="mini" @click="handleDislike(comment.commentId)">已踩 {{ comment.unlikeCount }}</el-button>
+                     <el-button class="el-icon-s-comment" type="text" size="mini"
                            @click="currentComment.fatherId=comment.commentId;
                             currentComment.authorName=comment.authorName;
                             currentComment.children=comment.children;
@@ -107,12 +112,13 @@
 
 <script>
 import { getDetail } from '@/api/news'
-import { getNewsCommentList, saveComment, deleteComment } from '@/api/comment'
+import { getNewsCommentList, saveComment, deleteComment, getCommentLikeStatus, likeComment, dislikeComment } from '@/api/comment'
 
 export default {
   name: 'Detail',
   data() {
     return {
+      commentLoading: true,
       id: this.$route.params.id,
       detail: {},
       commentQuery: {
@@ -153,19 +159,35 @@ export default {
       })
     },
     getCommentList() {
+      this.commentLoading = true
       return new Promise((resolve, reject) => {
         this.commentQuery.newsId = this.id
-        getNewsCommentList(this.commentQuery).then(response => {
+        getNewsCommentList(this.commentQuery).then(async response => {
           this.commentList = response.data.list
+          // 获取评论点赞状态（对每一条顶级评论）
+          // 等待所有的 getCommentLikeStatus 调用完成
+          await this.updateCommentStatuses(this.commentList)
+          this.commentLoading = false
           resolve()
         }).catch(error => {
           reject(error)
         })
       })
     },
-    openSubComment(authorName, children) {
+    // 新的方法，等待所有的 getCommentLikeStatus 调用完成
+    async updateCommentStatuses(commentList) {
+      return Promise.all(commentList.map(async item => {
+        const response = await getCommentLikeStatus(item.commentId)
+        this.$set(item, 'likeStatus', response.data.likeStatus)
+        this.$set(item, 'dislikeStatus', response.data.dislikeStatus)
+      }))
+    },
+    async openSubComment(authorName, children) {
       this.authorName = authorName
       this.subCommentList = children
+      // 获取评论点赞状态（对每一条子级评论）
+      // 等待所有的 getCommentLikeStatus 调用完成
+      await this.updateCommentStatuses(this.subCommentList)
       this.innerDrawer = true
     },
     sendComment(parentId, replyId, content) {
@@ -223,6 +245,25 @@ export default {
         })
       })
     },
+    handleLike(commentId) {
+        likeComment(commentId).then(() => {
+          this.$message({
+            message: '成功',
+            type: 'success'
+          })
+          this.getCommentList()
+        })
+    },
+    handleDislike(commentId) {
+        dislikeComment(commentId).then(() => {
+          this.$message({
+            message: '成功',
+            type: 'success'
+          })
+          this.getCommentList()
+        })
+    },
+
     handleClose(done) {
       done()
     }
