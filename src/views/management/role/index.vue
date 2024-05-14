@@ -66,10 +66,10 @@
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">
         <el-form-item label="角色名" prop="roleName">
-          <el-input v-model="temp.roleName" />
+          <el-input disabled v-model="temp.roleName" />
         </el-form-item>
-        <el-form-item label="角色编码" prop="code">
-          <el-input v-model="temp.code" />
+        <el-form-item  label="角色编码" prop="code">
+          <el-input disabled v-model="temp.code" />
         </el-form-item>
         <el-form-item label="描述">
           <el-input v-model="temp.description" :autosize="{ minRows: 1, maxRows: 2}" type="textarea" />
